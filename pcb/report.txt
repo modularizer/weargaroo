@@ -1,0 +1,11 @@
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-F_Cu.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-B_Cu.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-F_Paste.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-B_Paste.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-F_Silkscreen.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-B_Silkscreen.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-F_Mask.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-B_Mask.gbr'.
+Plotted to 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-Edge_Cuts.gbr'.
+Created Gerber job file 'C:\Users\Torin\Documents\seed\watch_pcb\watch_pcb-job.gbrjob'.
+Info: Done.

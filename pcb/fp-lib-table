@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "Seeduino")(type "KiCad")(uri "C:/Users/Torin/Documents/seed/Seeeduino XIAO KICAD")(options "")(descr ""))
+  (lib (name "SeeduinoBLE")(type "KiCad")(uri "C:/Users/Torin/Documents/seed/Seeduino BLE KICAD")(options "")(descr ""))
+)
