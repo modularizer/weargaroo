@@ -1,8 +1,8 @@
 import rtc
 import time
 
-from .gtu7 import GTU7
-from .nmea import NMEA
+from components.gps.gtu7 import GTU7
+from components.gps.nmea import NMEA
 
 
 class GPS(GTU7):

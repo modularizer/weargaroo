@@ -1,14 +1,12 @@
 import displayio
 import terminalio
 import time
-import digitalio
 import board
+
 from gps.gps import GPS
+from components.display import Display
 
-
-from display.extended_display import ExtendedDisplay
-
-display = ExtendedDisplay(native_frames_per_second = 1)
+display = Display(native_frames_per_second = 1)
 display.clear()
 
 displayed_text = ["", "", "", ""]
