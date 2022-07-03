@@ -6,12 +6,12 @@ class NMEA(object):
 
     @staticmethod
     def time(s):
-        t = (None, None, None, int(s[0:2]), int(s[2:4]), float(s[4:]))
+        t = (None, None, None, int(s[0:2]), int(s[2:4]), int(float(s[4:])))
         return t
 
     @staticmethod
     def date(s):
-        t = (2000 + int(s[0:2]), int(s[2:4]), float(s[4:]), None, None, None)
+        t = (2000 + int(s[0:2]), int(s[2:4]), int(float(s[4:])), None, None, None)
         return t
 
     @staticmethod

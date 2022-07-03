@@ -37,6 +37,19 @@ class GPS(GTU7):
     def receive(self, message):
         return self.position.receive(message)
 
+    def calibrate_rtc(self, timeout=10):
+        self.position.calibrate_time = True
+        t0 = time.time()
+        while self.position.calibrate_time and time.time() < (t0 + timeout):
+            self.read()
+
+        if self.position.calibrate_time:
+            print("timed out before clock was calibrated")
+            return False
+        print("rtc calibrated")
+        print(self.position.time_dict)
+        return self.position.time_dict
+
 
 class GPSPosition(object):
     def __init__(self, on_update=None, calibrate_time=True):
@@ -45,6 +58,13 @@ class GPSPosition(object):
         self.alt = None
         self.calibrate_time = calibrate_time
         self.rtc = rtc.RTC()
+
+        try:
+            with open("timezone.txt") as f:
+                self.timezone_offset = int(f.read())
+        except:
+            self.timezone_offset = -8
+
         self.time_dict = {
             "y": 0,
             "m": 0,
@@ -79,7 +99,7 @@ class GPSPosition(object):
     def GPGSV(self, values):
         sats = values['sats']
         if sats is not None:
-            #print([(sat['satellite_prn'], (sat['elevation_degrees'], sat['azimuth'], sat['snr_db'])) for sat in sats])
+            # print([(sat['satellite_prn'], (sat['elevation_degrees'], sat['azimuth'], sat['snr_db'])) for sat in sats])
             pass
 
     def update_lat(self, lat):
@@ -100,6 +120,7 @@ class GPSPosition(object):
 
     def update_time(self, t):
         y, m, d, H, M, S = t
+        H += self.timezone_offset
         td = {
             "y": y, "m": m, "d": d, "H": H, "M": M, "S": S
         }
@@ -109,14 +130,14 @@ class GPSPosition(object):
             td = self.time_dict
             ts = time.struct_time(
                 (td["y"],
-                td["d"],
-                td["m"],
-                td["H"],
-                td["M"],
-                td["S"],
-                -1,
-                -1,
-                -1)
+                 td["d"],
+                 td["m"],
+                 td["H"],
+                 td["M"],
+                 td["S"],
+                 -1,
+                 -1,
+                 -1)
             )
             self.rtc.datetime = ts
             self.calibrate_time = False
@@ -126,9 +147,4 @@ class GPSPosition(object):
 
 if __name__ == "__main__":
     gps = GPS()
-
-    t0 = time.time()
-    while time.time() < (t0 + 10):
-        gps.read()
-
-
+    gps.calibrate_rtc()
