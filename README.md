@@ -22,6 +22,7 @@ Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sen
   * [KICAD](https://www.kicad.org/) (free PCB Design Software)
   * [Fusion 360](https://www.autodesk.com/products/fusion-360/overview?term=1-YEAR&tab=subscription) (free CAD Software)
   * [Mu](https://codewith.mu/) (free CircuitPython IDE)
+  * [Gimp](https://www.gimp.org/) (free Image Editor)
 
 # Resources
 <hr>
@@ -29,6 +30,7 @@ Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sen
   * [Seeed Studio Official Documentation](https://wiki.seeedstudio.com/XIAO_BLE/)
   * [CircuitPython Official Documentation](https://docs.circuitpython.org/en/latest/README.html)
   * [Interpreting NMEA Sentences (for GPS)](http://aprs.gids.nl/nmea/#allgp)
+  * [Making Bitmaps](https://learn.adafruit.com/creating-your-first-tilemap-game-with-circuitpython/indexed-bmp-graphics)
 
 # Components
 <hr>
@@ -75,24 +77,16 @@ $60 worth of materials and 20 minutes of assembly per watch
 
 | Component | Part Pin | Board Pin |
 | :---------|:---------|:----------|
-| Screen    | GND      | GND       |
-| Screen    | VCC      | 3.3       |
 | Screen    | SCL      | SCK       |
 | Screen    | SDA      | MOSI      |
 | Screen    | Res      | D4        |
 | Screen    | DC       | D5        |
-| Screen    | BLK      | no connection |
-| GT-U7     | GND      | GND       |
-| GT-U7     | VCC      | VCC       |
 | GT-U7     | TXD      | RX        |
-| Bottom Button | -    | GND       |
 | Bottom Button | +    | *A0        |
-| Middle Button | -    | GND       |
 | Middle Button | +    | A1        |
-| Top Button | -    | GND       |
 | Top Button | +    | A2        |
-| Vibrational Motor | - | GND |
-|Vibrational Motor | + | *A0 |
+| Vibrational Motor | + | *A0 |
+| Pulse | Signal | A3|
 
 # Notes
 <hr>
@@ -100,6 +94,7 @@ $60 worth of materials and 20 minutes of assembly per watch
 ### Screen
 * the silkscreen on the PCB says SCL and SDA implying the screen uses I2C, but these pins actually get connected to SCK and MOSI and the screen uses SPI
 * screen SPI needs `polarity=1`, `phase=1`. In Arduino, this is `SPI_MODE3`
+* To display images, use GIMP to convert the image to an indexed bitmap, the fewer the colors used the better (recommended <10 colors) (see https://learn.adafruit.com/creating-your-first-tilemap-game-with-circuitpython/indexed-bmp-graphics)
 
 ### IMU
  * The internal IMU works using I2C. Before reading data, power the IMU and allow time to sleep before initializing (see `accel.py`)

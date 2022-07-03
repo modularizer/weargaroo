@@ -1,7 +1,8 @@
+import terminalio
 import displayio
 
 from .st7789 import Display
-from .adafruit_display_text import label
+from adafruit_display_text import label
 
 display = Display()
 

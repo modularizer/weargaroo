@@ -13,10 +13,12 @@ display.clear()
 
 displayed_text = ["", "", "", ""]
 
+
 def write_text(lines, scale=2, spacing=25, x_start=20, y_start=10, color=0xFFFFFF):
     display.clear()
     for i, line in enumerate(lines):
         display.write_text(line, scale, x_start, i*spacing + y_start, color=0xFFFFFF)
+
 
 def update_display(**kw):
     print("kw=", kw)

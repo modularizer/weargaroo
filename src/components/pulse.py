@@ -1,55 +1,36 @@
 import time
 import board
-import displayio
 import analogio
 import supervisor
 
-from display.extended_display import ExtendedDisplay
+from utility import MeanFilt
+import pinout
 
 
-class MedFilt(object):
-    def __init__(self, n=10):
-        self.n = n
-        self.values = []
-        self.length = 0
-        self.sum = 0
-        self.max = -1e30
-        self.min = 1e30
+class AnalogPulse(object):
+    def __init__(self, pin=pinout.PULSE):
+        self.analog_in = analogio.AnalogIn(pin)
 
     @property
-    def med(self):
-        return self.sum / self.length
+    def analog_value(self):
+        return self.analog_in.value
 
-    def append(self, val):
-        self.values = [val] + self.values
-        self.length += 1
-        self.sum += val
-        # adjust max
-        if val > self.max:
-            self.max = val
-        if val < self.min:
-            self.min = val
-
-        while self.length > self.n:
-            v = self.values.pop()
-            if v == self.max:
-                self.max = max(self.values)
-            if v == self.min:
-                self.min = min(self.values)
-            self.sum -= v
-            self.length -= 1
+    def read(self):
+        val = self.analog_value
+        t = supervisor.ticks_ms() / 1000
+        return val, t
 
 
-class Pulse(object):
+class Pulse(AnalogPulse):
     def __init__(self, pin=board.A3, avg_samples=100, med_window=50, beats=10, init_rate=60):
-        self.analog_in = analogio.AnalogIn(pin)
+        super().__init__(pin)
         self.beats = beats
         self.avg_samples = avg_samples
         self.avg_sum = 0
         self.avg_length = 0
-        self.med = MedFilt(med_window)
+        self.mean = MeanFilt(med_window)
         self.tracked_phases = (1,)
-        self.filtered_period = MedFilt(beats * len(self.tracked_phases))
+        self.filtered_period = MeanFilt(beats * len(self.tracked_phases))
         init_period = 60 / init_rate
         for _ in range(beats * 4):
             self.filtered_period.append(init_period)
@@ -64,15 +45,10 @@ class Pulse(object):
 
     @property
     def period(self):
-        return self.filtered_period.med
-
-    def _read_val(self, n=10):
-        val = self.analog_in.value
-        t = supervisor.ticks_ms() / 1000
-        return val, t
+        return self.filtered_period.mean
 
     def read(self):
-        val, t = self._read_val()
+        val, t = super().read()
         if self.avg_length < self.avg_samples:
             self.avg_sum += val
             self.avg_length += 1
@@ -81,13 +57,13 @@ class Pulse(object):
             avg_val = self.avg_sum / self.avg_length
             self.avg_sum = 0
             self.avg_length = 0
-            self.med.append(avg_val)
-            med_val = self.med.med
-            max_val = self.med.max
-            min_val = self.med.min
+            self.mean.append(avg_val)
+            med_val = self.mean.mean
+            max_val = self.mean.max
+            min_val = self.mean.min
 
             if max_val > min_val:
-                y = (avg_val - self.med.med) / (max_val - min_val)
+                y = (avg_val - self.mean.mean) / (max_val - min_val)
                 y = max([-1, min([1, y])])
             else:
                 y = 0
@@ -114,7 +90,7 @@ class Pulse(object):
                 self.last_phase_times[phase] = t
                 self.last_phase = phase
 
-        # print(avg_val/self.med.med, self.med.max/self.med.med, self.med.min/self.med.med)
+        # print(avg_val/self.mean.mean, self.mean.max/self.mean.mean, self.mean.min/self.mean.mean)
         self.on_value(self.i, y, dy, phase, new_phase)
         self.i += 1
         return y
@@ -124,7 +100,8 @@ class Pulse(object):
 
 
 def test_pulse():
-    display = ExtendedDisplay(native_frames_per_second=60)
+    from .display import Display
+    display = Display(native_frames_per_second=60)
     display.clear()
 
     p = Pulse()

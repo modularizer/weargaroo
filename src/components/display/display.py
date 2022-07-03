@@ -2,12 +2,12 @@ import displayio
 import terminalio
 
 from adafruit_display_text import label
+import adafruit_imageload
+
+from .st7789_display import ST7789Display
 
 
-from .st7789.display import Display as Display
-
-
-class ExtendedDisplay(Display):
+class Display(ST7789Display):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
 
@@ -41,3 +41,13 @@ class ExtendedDisplay(Display):
         tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
         self.splash.append(tile_grid)
         return bitmap
+
+    def show_image(self, fn):
+        image, palette = adafruit_imageload.load(fn)
+        tile_grid = displayio.TileGrid(image, pixel_shader=palette)
+        self.splash.append(tile_grid)
+
+
+if __name__ == "__main__":
+    display = Display()
+    display.show_image("imgs/weargaroo_logo.bmp")
