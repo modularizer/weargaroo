@@ -57,6 +57,7 @@ class GPSPosition(object):
         self.lng = None
         self.alt = None
         self.calibrate_time = calibrate_time
+        self.calibrated = False
         self.rtc = rtc.RTC()
 
         try:
@@ -91,10 +92,13 @@ class GPSPosition(object):
 
     def GPGGA(self, values):
         print("received", values)
-        self.update_lat(values['lat'])
-        self.update_lng(values['lng'])
-        self.update_alt(values['alt'])
-        self.update_time(values['time'])
+        try:
+            self.update_lat(values['lat'])
+            self.update_lng(values['lng'])
+            self.update_alt(values['alt'])
+            self.update_time(values['time'])
+        except Exception as e:
+            print(e)
 
     def GPGSV(self, values):
         sats = values['sats']
@@ -120,11 +124,16 @@ class GPSPosition(object):
 
     def update_time(self, t):
         y, m, d, H, M, S = t
-        H += self.timezone_offset
+        if y is None:
+            y = 2000
+        if m is None:
+            m = 0
+        if d is None:
+            d = 0
+        H = ( H + self.timezone_offset) % 24
         td = {
             "y": y, "m": m, "d": d, "H": H, "M": M, "S": S
         }
-        print(td)
         self.time_dict.update({k: v for k, v in td.items() if v is not None})
         if self.calibrate_time:
             td = self.time_dict
@@ -135,14 +144,17 @@ class GPSPosition(object):
                  td["H"],
                  td["M"],
                  td["S"],
-                 -1,
+                 0,
                  -1,
                  -1)
             )
             self.rtc.datetime = ts
             self.calibrate_time = False
+            self.calibrated = True
         if self.on_update:
             self.on_update(time=self.time_dict)
+
+
 
 
 if __name__ == "__main__":
