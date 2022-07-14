@@ -22,7 +22,7 @@ class AnalogPulse(object):
 
 
 class Pulse(AnalogPulse):
-    def __init__(self, pin=board.A3, avg_samples=100, med_window=50, beats=10, init_rate=60):
+    def __init__(self, pin=board.A3, avg_samples=40, med_window=40, beats=10, init_rate=60):
         super().__init__(pin)
         self.beats = beats
         self.avg_samples = avg_samples
@@ -32,9 +32,9 @@ class Pulse(AnalogPulse):
         self.tracked_phases = (1,)
         self.filtered_period = MeanFilt(beats * len(self.tracked_phases))
         init_period = 60 / init_rate
-        for _ in range(beats * 4):
+        for _ in range(beats * 5):
             self.filtered_period.append(init_period)
-        self.last_phase_times = [None] * 4
+        self.last_phase_times = [None] * 5
         self.last_phase = None
         self.last_y = 0
         self.i = 0
@@ -69,13 +69,14 @@ class Pulse(AnalogPulse):
                 y = 0
 
             dy = y - self.last_y
+            pulse_dir = dy > 0
             self.last_y = y
 
             if y > 0.33:
-                phase = 1
+                phase = 1 - 1 * pulse_dir
             elif y < -0.33:
-                phase = 3
-            elif self.last_phase == 3:
+                phase = 3 + 1 * pulse_dir
+            elif self.last_phase == 4:
                 phase = 0
             else:
                 phase = 2
@@ -100,7 +101,7 @@ class Pulse(AnalogPulse):
 
 
 def test_pulse():
-    from .display import Display
+    from components.display import Display
     display = Display(native_frames_per_second=60)
     display.clear()
 
@@ -108,24 +109,25 @@ def test_pulse():
     a1 = analogio.AnalogIn(board.A1)
 
     global bitmap
-    bitmap = display.init_bitmap()
+    palette_colors = [0, 0xFFFFFF, 0xFF0000]
+    bitmap = display.init_bitmap(palette_colors)
 
     def on_value(ind, value, dv, phase, new_phase):
         global bitmap
         print(value, dv)
         # y = max([0, min([239, 120 - int(200 * dv)])])
-        y = max([0, min([239, 120 - int(100 * value)])])
-        bitmap[ind % 240, y] = 1
+        y = max([0, min([239, 120 - int(120 * value)])])
+        bitmap[ind % 240, y] = 2 if phase == 1 and new_phase else 1
         if not (ind % 240):
             display.clear()
             display.write_text(str(p.rate), 2, 40, 200, color=0xFFFFFF)
             time.sleep(0.5)
             display.clear()
-            bitmap = display.init_bitmap()
+            bitmap = display.init_bitmap(palette_colors)
             for x in range(240):
-                bitmap[x, 80] = 1
+                bitmap[x, 80] = 2
                 bitmap[x, 120] = 1
-                bitmap[x, 160] = 1
+                bitmap[x, 160] = 2
 
     p.on_value = on_value
 

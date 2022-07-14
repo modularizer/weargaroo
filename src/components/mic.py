@@ -51,11 +51,27 @@ class Mic(audiobusio.PDMIn):
         return magnitude
 
 
-if __name__ == "__main__":
-    mic = Mic()
-    samples = array.array('H', [0] * 160)
+def test_mic():
+    from components.display import Display
+    display = Display(native_frames_per_second=60)
+    display.clear()
+
+    m = Mic()
+    palette_colors = [0, 0x808080, 0xFFFFFF, 0xFFFF80, 0xFFFF00, 0xFF8000, 0xFF0000, 0x800000]
+    samples = array.array('H', [0] * 10)
 
     while True:
-        magnitude = mic.record_norm(samples)
-        print(magnitude)
-        time.sleep(0.1)
+        display.clear()
+        bitmap = display.init_bitmap(palette_colors)
+        for x in range(240):
+            v = m.record_norm(samples)
+            vb = min([max([0, int(v)]), 239])
+            y = 239 - vb
+            c = 1 + int(vb/40)
+            bitmap[x, y] = c
+            print(v, y, c)
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    test_mic()

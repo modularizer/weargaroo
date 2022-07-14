@@ -1,13 +1,11 @@
-from test_gps import test_gps
-from pulse import test_pulse
-from watch import Watch
-
-def test_watch():
-    w = Watch()
-    w.top_button.push_callback
+from components.pulse import test_pulse
+from components.gps.test import test_gps
+from components.imu import test_imu
+from clock import test_clock
 
 if __name__ == "__main__":
-    #test()
-    test_pulse()
+    # test_pulse()
     # test_gps()
+    # test_imu()
+    test_clock()
 

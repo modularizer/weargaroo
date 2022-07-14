@@ -34,11 +34,13 @@ class Display(ST7789Display):
         self.splash.append(bg_sprite)
         return bg_sprite
 
-    def init_bitmap(self):
-        bitmap = displayio.Bitmap(self.width, self.height, 2)
-        palette = displayio.Palette(2)
-        palette[0] = 0x000000
-        palette[1] = 0xffffff
+    def init_bitmap(self, palette_colors):
+        if not palette_colors:
+            palette_colors = (0, 0xFFFFFF)
+        bitmap = displayio.Bitmap(self.width, self.height, len(palette_colors))
+        palette = displayio.Palette(len(palette_colors))
+        for i, c in enumerate(palette_colors):
+            palette[i] = c
         tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
         self.splash.append(tile_grid)
         return bitmap

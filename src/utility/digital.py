@@ -7,7 +7,7 @@ def DigitalOut(pin):
     return digital_out
 
 
-def DigitalIN(pin):
+def DigitalIn(pin):
     digital_out = digitalio.DigitalInOut(pin)
     digital_out.direction = digitalio.Direction.INPUT
     return digital_out
