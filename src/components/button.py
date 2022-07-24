@@ -3,13 +3,15 @@ import time
 import board
 import analogio
 
+from utility.digital import DigitalIn
+
 
 class Button(object):
-    def __init__(self, pin_name: str = "A0", push_callback=None, release_callback=None,
-                hold_callback=None, condition=None, threshold=2500, comparison=">"):
-        self.pin_name = pin_name
-        self.pin = getattr(board, self.pin_name)
-        self.analog_in = None
+    def __init__(self, num, push_callback=None, release_callback=None,
+                hold_callback=None, mode='digital', condition=None, threshold=0.5, comparison=">", config=False):
+        self._mode = mode
+        self.num = num
+        self.pin = None
         self.last_state = False
         self.push_time = None
         self.count = 0
@@ -30,14 +32,34 @@ class Button(object):
                     "!=": lambda v: v != threshold,
                 }[comparison]
             self.condition = condition
+        if config:
+            self.config(mode)
 
-    def config(self):
-        self.analog_in = analogio.AnalogIn(self.pin)
-        return self.analog_in
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode):
+        self.config(mode)
+
+    def config(self, mode=None):
+        if mode is None:
+            mode = self.mode
+        self._mode = mode
+        if mode == "analog":
+            self.pin = analogio.AnalogIn(getattr(board, f"A{self.num}"))
+        elif mode == "digital":
+            self.pin = DigitalIn(getattr(board, f"D{self.num}"))
+        return self.pin
 
     def read(self):
-        if self.analog_in is not None:
-            return self.analog_in.value
+        if self.pin is None:
+            self.config()
+        if self.mode == "digital":
+            return self.pin.value
+        elif self.mode == "analog":
+            return self.pin.value / 65535
 
     @staticmethod
     def condition(value):
@@ -45,8 +67,9 @@ class Button(object):
 
     def is_triggered(self):
         value = self.read()
-        # print(value)
         if value is not None:
+            if self.mode == "digital":
+                return value
             return self.condition(value)
 
     def check(self):
@@ -57,7 +80,7 @@ class Button(object):
             if changed and is_triggered:
                 self.count += 1
                 t = time.time()
-                dt = 0
+                dt = 0.001
                 self.push_time = t
                 self.push_callback(self.count, t, dt)
             elif is_triggered and not changed:
@@ -68,6 +91,7 @@ class Button(object):
                 t = time.time()
                 dt = t - self.push_time
                 self.release_callback(self.count, t, dt)
+        return is_triggered
 
     def push_callback(self, count, t, dt):
         print(f"{self.pin_name} pushed #{count}")
@@ -83,33 +107,24 @@ class Button(object):
             self.analog_in.deinit()
 
 
-class Buttons(object):
-    def __init__(self, buttons: dict):
-        self.buttons = {k: v if isinstance(v, Button) else Button(k, **v) if isinstance(v, dict) else Button(k) for k, v in buttons.items()}
+def test_button():
+    from components import Display
+    import config
 
-    def config(self):
-        for v in self.buttons.values():
-            v.config()
+    d = Display()
+    last = 0
+    t = d.text("0", stroke=4)
+    colors = [0x00ff00, 0xff0000]
+    b = Button(config.TOP_BUTTON)
 
-    def read(self):
-        return {k: v.read() for k, v in self.buttons.items()}
-
-    def is_triggered(self):
-        return {k: v.is_triggered() for k, v in self.buttons.items()}
-
-    def check(self):
-        for v in self.buttons.values():
-            v.check()
-
-    def deinit(self):
-        for v in self.buttons.values():
-            v.deinit()
+    while True:
+        v = b.check()
+        if v != last:
+            t.text = str(v)
+            t.color = colors[v]
+            last = v
+        time.sleep(0.05)
 
 
 if __name__ == "__main__":
-    b = Button("A2")
-    b.config()
-
-    while True:
-        b.check()
-        time.sleep(0.05)
+    test_button()

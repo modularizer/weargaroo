@@ -1,7 +1,8 @@
 import board
 import analogio
 
-from utility import Colors, DigitalOut
+from utility import DigitalOut
+from components.display.colors import get_color
 
 
 class LED(object):
@@ -24,7 +25,6 @@ class RGB_LED(object):
     R = LED(board.LED_RED)
     G = LED(board.LED_GREEN)
     B = LED(board.LED_BLUE)
-    colors = Colors()
 
     @property
     def r(self):
@@ -59,41 +59,31 @@ class RGB_LED(object):
         self.r, self.g, self.b = rgb
 
     @property
-    def rgba(self):
-        return (self.r, self.g, self.b, max([self.r, self.g, self.b]) / 255)
-
-    @rgba.setter
-    def rgba(self, rgba):
-        r, g, b, a = rgba
-        self.r = int(r * a / 255)
-        self.g = int(g * a / 255)
-        self.b = int(b * a / 255)
-
-    @property
     def color(self):
-        return self.colors.color_search(self.value)
+        return self.rgb
 
     @color.setter
-    def color(self, color: str):
-        if hasattr(self.colors, color):
-            self.value = getattr(self.colors, color)
+    def color(self, color):
+        color = get_color(color)
+        b = color % (1 << 8)
+        g = (color >> 8) % (1<<8)
+        r = color >> 16
+        self.rgb = (r, g, b)
 
-    @property
-    def value(self):
-        return hex(self.r << 16 | self.g << 8 | self.b)
-
-    @value.setter
-    def value(self, value):
-        self.r, self.g, self.b = self.colors.to_rgb(value)
+    def check(self):
+        return self.rgb
 
 
-if __name__ == "__main__":
+def test_rgb_led():
     import time
 
     rgb = RGB_LED()
 
     while True:
-        for k, v in rgb.colors.dict().items():
-            print(k)
-            rgb.value = v
+        for color in ["red", "white", "blue", "green", "yellow","pink","black"]:
+            rgb.color = color
             time.sleep(0.5)
+
+
+if __name__ == "__main__":
+    test_rgb_led()

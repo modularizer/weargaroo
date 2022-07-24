@@ -5,8 +5,9 @@ from components.gps import GPS
 
 
 class Clock(object):
-    def __init__(self, mode="HH:MM:SS", gps=None, display=None):
+    def __init__(self, mode="HH:MM:SS", twenty_four=False, gps=None, display=None):
         self.mode = mode
+        self.twenty_four = twenty_four
         if gps is None:
             gps = GPS()
         if not gps.position.calibrated:
@@ -21,6 +22,8 @@ class Clock(object):
         st = time.localtime()
         print(st)
         y, d, m, H, M, S, wd, yd, is_dst = st
+        if not self.twenty_four:
+            H %= 12
         d = {
             "wkd": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][wd],
             "wd": ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][wd],
@@ -45,7 +48,7 @@ class Clock(object):
 
     def write(self, t):
         self.display.clear()
-        self.display.write_text(t, scale=5, x=40, y=80)
+        self.display.write_text(t, scale=5, x=40, y=100)
 
     def update(self):
         t, time_until = self.check()
@@ -57,8 +60,8 @@ class Clock(object):
             try:
                 t, time_until = self.check()
                 self.write(t)
-                # time.sleep(time_until)
-                time.sleep(5)
+                time.sleep(time_until)
+                # time.sleep(5)
             except Exception as e:
                 print(e)
 

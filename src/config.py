@@ -1,3 +1,20 @@
-height = 240
-width = 240
-palette = "brown_rose"
+import board
+
+TOP_BUTTON = 2
+SIDE_BUTTON = 1
+BOTTOM_BUTTON = 0
+VIBMO = 0
+VIBMO_BUTTON = 0
+PULSE = 3
+GPS_RX = board.RX
+GPS_TX = board.TX
+TFT_RST = board.D4
+TFT_DC = board.D5
+TFT_CS = board.NFC2 # unused
+TFT_HEIGHT = 240
+TFT_WIDTH = 240
+TFT_ROTATION = 180
+TFT_POLARITY = 1
+TFT_PHASE = 1
+TFT_BAUDRATE = 31250000
+

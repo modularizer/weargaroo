@@ -1,9 +1,11 @@
 import board
 import busio
 
+import config
+
 
 class GTU7(object):
-    def __init__(self, tx=board.TX, rx=board.RX):
+    def __init__(self, tx=config.GPS_TX, rx=config.GPS_RX):
         self.uart = busio.UART(tx=tx, rx=rx, baudrate=9600, parity=None, stop=1)
 
     def read(self, num_bytes=32):

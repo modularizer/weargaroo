@@ -4,11 +4,12 @@ import analogio
 import supervisor
 
 from utility import MeanFilt
-import pinout
+import config
 
 
 class AnalogPulse(object):
-    def __init__(self, pin=pinout.PULSE):
+    def __init__(self, num=config.PULSE):
+        pin = getattr(board, f"A{num}")
         self.analog_in = analogio.AnalogIn(pin)
 
     @property
@@ -22,19 +23,20 @@ class AnalogPulse(object):
 
 
 class Pulse(AnalogPulse):
-    def __init__(self, pin=board.A3, avg_samples=40, med_window=40, beats=10, init_rate=60):
-        super().__init__(pin)
+    def __init__(self, num=config.PULSE, avg_samples=40, med_window=40, beats=10, init_rate=60):
+        super().__init__(num)
         self.beats = beats
         self.avg_samples = avg_samples
         self.avg_sum = 0
         self.avg_length = 0
         self.mean = MeanFilt(med_window)
         self.tracked_phases = (1,)
+        self.num_phases = 5
         self.filtered_period = MeanFilt(beats * len(self.tracked_phases))
         init_period = 60 / init_rate
-        for _ in range(beats * 5):
+        for _ in range(beats * self.num_phases):
             self.filtered_period.append(init_period)
-        self.last_phase_times = [None] * 5
+        self.last_phase_times = [None] * self.num_phases
         self.last_phase = None
         self.last_y = 0
         self.i = 0
@@ -80,12 +82,12 @@ class Pulse(AnalogPulse):
                 phase = 0
             else:
                 phase = 2
-            new_phase = phase != self.last_phase
+            new_phase = self.last_phase is None or phase == (self.last_phase + 1) % self.num_phases
             if new_phase:
                 last_phase_time = self.last_phase_times[phase]
                 if last_phase_time is not None:
                     dpt = t - last_phase_time
-                    if dpt > 0.5*self.period:
+                    if dpt > 0.5 * self.period:
                         if phase in self.tracked_phases:
                             self.filtered_period.append(dpt)
                 self.last_phase_times[phase] = t
@@ -99,42 +101,46 @@ class Pulse(AnalogPulse):
     def on_value(self, ind, value, dy, phase, new_phase):
         print(ind, value, phase, new_phase)
 
+    def check(self):
+        return self.read()
+
 
 def test_pulse():
-    from components.display import Display
-    display = Display(native_frames_per_second=60)
-    display.clear()
+    from components import Display
+    display = Display()
 
     p = Pulse()
-    a1 = analogio.AnalogIn(board.A1)
 
-    global bitmap
-    palette_colors = [0, 0xFFFFFF, 0xFF0000]
-    bitmap = display.init_bitmap(palette_colors)
+    bitmap, tile_grid = display.bitmap(width=240, height=240, palette=['black', 'white', 'light_red', 'red'])
+
+    lines = display.group(display.line(y=80, color="red", show=False),
+                          display.line(y=120, color="white", show=False),
+                          display.line(y=160, color="red", show=False),
+                          )
+    pulse = display.text("60", x=50, y=200, scale=2)
 
     def on_value(ind, value, dv, phase, new_phase):
-        global bitmap
-        print(value, dv)
-        # y = max([0, min([239, 120 - int(200 * dv)])])
         y = max([0, min([239, 120 - int(120 * value)])])
-        bitmap[ind % 240, y] = 2 if phase == 1 and new_phase else 1
+        c = 3 if phase == 1 and new_phase else 2 if phase == 1 else 1
+        x = ind % 240
+        bitmap[x, y] = c
+        if c == 3:
+            for dx in [-2, -1, 1, 2]:
+                if 0 <= (x + dx) <= 239:
+                    for dy in [-2, -1, 1, 2]:
+                        if 0 <= (y + dy) <= 239:
+                            bitmap[x + dx, y + dy] = c
+            pulse.text = str(p.rate)
+
         if not (ind % 240):
-            display.clear()
-            display.write_text(str(p.rate), 2, 40, 200, color=0xFFFFFF)
-            time.sleep(0.5)
-            display.clear()
-            bitmap = display.init_bitmap(palette_colors)
-            for x in range(240):
-                bitmap[x, 80] = 2
-                bitmap[x, 120] = 1
-                bitmap[x, 160] = 2
+            bitmap.fill(0)
 
     p.on_value = on_value
 
     while True:
+        # time.sleep(1)
         p.read()
 
 
 if __name__ == "__main__":
     test_pulse()
-

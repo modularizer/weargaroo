@@ -1,1 +1,1 @@
-from .gps import GPS
+from .gps import GPS, test_gps

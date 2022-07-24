@@ -33,6 +33,10 @@ class GPS(GTU7):
             for message in new_messages:
                 if message:
                     self.receive(message)
+                    return message
+
+    def check(self):
+        return self.read()
 
     def receive(self, message):
         return self.position.receive(message)
@@ -49,6 +53,10 @@ class GPS(GTU7):
         print("rtc calibrated")
         print(self.position.time_dict)
         return self.position.time_dict
+
+    @property
+    def rtc(self):
+        return self.position.rtc
 
 
 class GPSPosition(object):
@@ -130,24 +138,27 @@ class GPSPosition(object):
             m = 0
         if d is None:
             d = 0
-        H = ( H + self.timezone_offset) % 24
+        H = (H + self.timezone_offset) % 24
         td = {
             "y": y, "m": m, "d": d, "H": H, "M": M, "S": S
         }
         self.time_dict.update({k: v for k, v in td.items() if v is not None})
-        if self.calibrate_time:
-            td = self.time_dict
-            ts = time.struct_time(
-                (td["y"],
-                 td["d"],
-                 td["m"],
-                 td["H"],
-                 td["M"],
-                 td["S"],
-                 0,
-                 -1,
-                 -1)
-            )
+        td = self.time_dict
+        ts = time.struct_time(
+            (td["y"],
+             td["d"],
+             td["m"],
+             td["H"],
+             td["M"],
+             td["S"],
+             0,
+             -1,
+             -1)
+        )
+        t = time.mktime(ts)
+        dt = time.time() - t
+        if self.calibrate_time or abs(dt) > 30:
+            print("calibrating clock")
             self.rtc.datetime = ts
             self.calibrate_time = False
             self.calibrated = True
@@ -155,8 +166,45 @@ class GPSPosition(object):
             self.on_update(time=self.time_dict)
 
 
+def test_gps():
+    import board
+    import displayio
+    from components import Display
+
+    d = Display()
+
+    g = d.group()
+    text = d.text("Time:\nLat:\nLng\nAlt:\n", scale=2, x=50, y=40, color="gray")
+    clock = d.text("", scale=2, x=120, y=40, color="white")
+    lat = d.text("", scale=2, x=120, y=75, color="white")
+    lng = d.text("", scale=2, x=120, y=110, color="white")
+    alt = d.text("", scale=2, x=120, y=145, color="white")
+    conversions = {
+        "time": (clock, lambda td: f"{td['H']}:{td['M']}:{td['S']}"),
+        "lat": (lat, lambda x: f"{x[0]} {x[1]}"),
+        "lng": (lng, lambda x: f"{x[0]} {x[1]}"),
+        "alt": (alt, lambda x: f"{x[0]} {x[1]}"),
+    }
+
+    def update_display(**kw):
+        print("UPDATE", kw)
+        for k, v in kw.items():
+            if k in conversions and v is not None:
+                t, f = conversions[k]
+                t.text = f(v)
+
+    gps = GPS(tx=board.D0, on_update=update_display)
+    # gps.calibrate_rtc()
+
+    while True:
+        try:
+            gps.read()
+            time.sleep(0.05)
+        except KeyboardInterrupt as ke:
+            raise ke
+        except Exception as e:
+            print("err", e)
 
 
 if __name__ == "__main__":
-    gps = GPS()
-    gps.calibrate_rtc()
+    test_gps()

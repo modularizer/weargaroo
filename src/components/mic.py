@@ -32,45 +32,49 @@ class Mic(audiobusio.PDMIn):
                          oversample=64,
                          startup_delay=0.11)
 
-    def record(self, samples):
+    def record(self, samples=10):
         super().record(samples, len(samples))
         return samples
 
-    def record_norm(self, samples):
+    def record_norm(self, samples=10):
         samples = self.record(samples)
         magnitude = self.normalized_rms(samples)
         return magnitude
 
-    def read(self, num_samples):
+    def read(self, num_samples=10):
         samples = array.array('H', [0] * num_samples)
         return self.record(samples)
 
-    def read_norm(self, num_samples):
+    def check(self, num_samples=10):
+        return self.on_update(self.read(num_samples))
+
+    def on_update(self, samples):
+        pass
+
+    def read_norm(self, num_samples=10):
         samples = self.read(num_samples)
         magnitude = self.normalized_rms(samples)
         return magnitude
 
 
 def test_mic():
-    from components.display import Display
-    display = Display(native_frames_per_second=60)
+    from components import Display
+    display = Display()
     display.clear()
 
     m = Mic()
-    palette_colors = [0, 0x808080, 0xFFFFFF, 0xFFFF80, 0xFFFF00, 0xFF8000, 0xFF0000, 0x800000]
+    bitmap, tile_grid = display.bitmap(palette=['black', 'white', 'light_yellow', 'yellow', 'orange', 'red', 'dark_red'])
     samples = array.array('H', [0] * 10)
 
     while True:
-        display.clear()
-        bitmap = display.init_bitmap(palette_colors)
         for x in range(240):
             v = m.record_norm(samples)
             vb = min([max([0, int(v)]), 239])
             y = 239 - vb
             c = 1 + int(vb/40)
             bitmap[x, y] = c
-            print(v, y, c)
         time.sleep(1)
+        bitmap.fill(0)
 
 
 if __name__ == "__main__":

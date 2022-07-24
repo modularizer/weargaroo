@@ -131,10 +131,10 @@ class BLE(BLERadio):
         return found, scan_responses
 
 
-if __name__ == "__main__":
+def test_ble():
     ble = BLE()
-    # ble.advertisement_test()
     ble.deviceinfo_service()
-    # ble.scan()
-    # ble.uart_service()
-    # ble.uart2()
+
+
+if __name__ == "__main__":
+    test_ble()
