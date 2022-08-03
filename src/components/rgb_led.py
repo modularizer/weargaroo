@@ -1,30 +1,13 @@
 import board
-import analogio
 
-from utility import DigitalOut
-from components.display.colors import get_color
-
-
-class LED(object):
-    def __init__(self, pin):
-        self.digital_out = DigitalOut(pin)
-
-    _value = True
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-        self.digital_out.value = value == 0
+from utility.digital import DigitalOut
+from components.colors import get_color
 
 
 class RGB_LED(object):
-    R = LED(board.LED_RED)
-    G = LED(board.LED_GREEN)
-    B = LED(board.LED_BLUE)
+    R = DigitalOut(board.LED_RED)
+    G = DigitalOut(board.LED_GREEN)
+    B = DigitalOut(board.LED_BLUE)
 
     @property
     def r(self):

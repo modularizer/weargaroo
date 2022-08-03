@@ -1,8 +1,6 @@
 import time
 import board
-import digitalio
 
-from components.button import Button
 from utility.digital import DigitalOut
 
 

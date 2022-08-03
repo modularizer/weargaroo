@@ -1,17 +1,13 @@
 import time
 
 from adafruit_ble import BLERadio
-from adafruit_ble.advertising.standard import Advertisement, ProvideServicesAdvertisement
-from adafruit_ble.services.standard.device_info import DeviceInfoService
-from adafruit_ble.services.nordic import UARTService
 from adafruit_bluefruit_connect.packet import Packet
 
-# Only the packet classes that are imported will be known to Packet.
-from adafruit_bluefruit_connect.color_packet import ColorPacket
 
 
 class BLE(BLERadio):
     def advertisement_test(self):
+        from adafruit_ble.advertising.standard import Advertisement
         advertisement = Advertisement()
         advertisement.short_name = "HELLO"
         advertisement.connectable = True
@@ -31,6 +27,8 @@ class BLE(BLERadio):
         This example does a generic connectable advertisement and prints out the
         manufacturer and model number of the device(s) that connect to it.
         """
+        from adafruit_ble.services.standard.device_info import DeviceInfoService
+
         a = Advertisement()
         a.connectable = True
         self.start_advertising(a)
@@ -56,6 +54,8 @@ class BLE(BLERadio):
         print("disconnected")
 
     def uart_service(self):
+        from adafruit_ble.services.nordic import UARTService
+
         SEND_RATE = 10  # how often in seconds to send text
 
         uart_server = UARTService()
@@ -94,6 +94,10 @@ class BLE(BLERadio):
             print("DISCONNECTED")
 
     def uart2(self):
+        from adafruit_ble.advertising.standard import ProductServicesAdvertisement
+        from adafruit_ble.services.nordic import UARTService
+        from adafruit_bluefruit_connect.color_packet import ColorPacket
+
         uart_server = UARTService()
         advertisement = ProvideServicesAdvertisement(uart_server)
 
@@ -109,6 +113,8 @@ class BLE(BLERadio):
                     print(packet.color)
 
     def scan(self):
+        from adafruit_ble.advertising.standard import Advertisement, ProvideServicesAdvertisement
+
         print("scanning")
         found = set()
         scan_responses = set()

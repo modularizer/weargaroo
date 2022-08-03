@@ -1,13 +1,13 @@
 import math
 import time
-import array
+from array import array
 
 import board
 import digitalio
-import audiobusio
+from audiobusio import PDMIN
 
 
-class Mic(audiobusio.PDMIn):
+class Mic(PDMIN):
     @staticmethod
     def mean(values):
         return sum(values) / len(values)
@@ -42,7 +42,7 @@ class Mic(audiobusio.PDMIn):
         return magnitude
 
     def read(self, num_samples=10):
-        samples = array.array('H', [0] * num_samples)
+        samples = array('H', [0] * num_samples)
         return self.record(samples)
 
     def check(self, num_samples=10):
@@ -64,7 +64,7 @@ def test_mic():
 
     m = Mic()
     bitmap, tile_grid = display.bitmap(palette=['black', 'white', 'light_yellow', 'yellow', 'orange', 'red', 'dark_red'])
-    samples = array.array('H', [0] * 10)
+    samples = array('H', [0] * 10)
 
     while True:
         for x in range(240):

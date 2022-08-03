@@ -1,16 +1,19 @@
 import board
-import analogio
-import digitalio
-
+from utility.mean_filt import MeanFilt
 
 class Battery(object):
     def __init__(self):
+        import analogio
+        import digitalio
         self.vbatt = analogio.AnalogIn(board.VBATT)
         self.vbatt_en = digitalio.DigitalInOut(board.READ_BATT_ENABLE)
         self.vbatt_en.direction = digitalio.Direction.INPUT
         self.charge_status = digitalio.DigitalInOut(board.CHARGE_STATUS)
         self.charge_status.direction = digitalio.Direction.INPUT
+        del analogio
+        del digitalio
         self.last_value = None
+        self.filt = MeanFilt(20)
 
     def start_charging(self):
         self.vbatt_en.value = True
@@ -20,7 +23,10 @@ class Battery(object):
 
     @property
     def charge(self):
-        return round(self.vbatt.value / 655.35, 2)
+        r = self.vbatt.value/65535
+        self.filt.append(r)
+        v = self.filt.mean
+        return round(1000*(v - 0.9), 2)
 
     def check(self):
         v = self.charge

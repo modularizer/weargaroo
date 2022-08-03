@@ -1,14 +1,13 @@
 import time
+import supervisor
+import digitalio
 
 import board
-import analogio
-
-from utility.digital import DigitalIn
 
 
 class Button(object):
-    def __init__(self, num, push_callback=None, release_callback=None,
-                hold_callback=None, mode='digital', condition=None, threshold=0.5, comparison=">", config=False):
+    def __init__(self, num, push_callback=None, release_callback=None, hold_callback=None,
+                 mode='digital', condition=None, threshold=0.001, comparison="<", config=False):
         self._mode = mode
         self.num = num
         self.pin = None
@@ -21,16 +20,16 @@ class Button(object):
             self.release_callback = release_callback
         if hold_callback is not None:
             self.hold_callback = hold_callback
+        if threshold is not None:
+            condition = {
+                ">": lambda v: v > threshold,
+                ">=": lambda v: v >= threshold,
+                "<": lambda v: v < threshold,
+                "<=": lambda v: v <= threshold,
+                "==": lambda v: v == threshold,
+                "!=": lambda v: v != threshold,
+            }[comparison]
         if condition is not None:
-            if threshold is not None:
-                condition = {
-                    ">": lambda v: v > threshold,
-                    ">=": lambda v: v >= threshold,
-                    "<": lambda v: v < threshold,
-                    "<=": lambda v: v <= threshold,
-                    "==": lambda v: v == threshold,
-                    "!=": lambda v: v != threshold,
-                }[comparison]
             self.condition = condition
         if config:
             self.config(mode)
@@ -48,9 +47,17 @@ class Button(object):
             mode = self.mode
         self._mode = mode
         if mode == "analog":
+            import analogio
             self.pin = analogio.AnalogIn(getattr(board, f"A{self.num}"))
+            del analogio
         elif mode == "digital":
+            from utility.digital import DigitalIn
             self.pin = DigitalIn(getattr(board, f"D{self.num}"))
+            del DigitalIn
+            if self.condition(0):
+                self.pin.pull = digitalio.Pull.UP
+            elif self.condition(1):
+                self.pin.pull = digitalio.Pull.DOWN
         return self.pin
 
     def read(self):
@@ -67,9 +74,8 @@ class Button(object):
 
     def is_triggered(self):
         value = self.read()
+        # print(value)
         if value is not None:
-            if self.mode == "digital":
-                return value
             return self.condition(value)
 
     def check(self):
@@ -79,17 +85,17 @@ class Button(object):
             self.last_state = is_triggered
             if changed and is_triggered:
                 self.count += 1
-                t = time.time()
+                t = supervisor.ticks_ms()
                 dt = 0.001
                 self.push_time = t
                 self.push_callback(self.count, t, dt)
             elif is_triggered and not changed:
-                t = time.time()
-                dt = t - self.push_time
+                t = supervisor.ticks_ms()
+                dt = (t - self.push_time)/1000
                 self.hold_callback(self.count, t, dt)
             elif changed and not is_triggered:
-                t = time.time()
-                dt = t - self.push_time
+                t = supervisor.ticks_ms()
+                dt = (t - self.push_time)/1000
                 self.release_callback(self.count, t, dt)
         return is_triggered
 
@@ -105,6 +111,8 @@ class Button(object):
     def deinit(self):
         if self.analog_in is not None:
             self.analog_in.deinit()
+        elif self.digital_in is not None:
+            self.digital_in.deinit()
 
 
 def test_button():
@@ -127,4 +135,11 @@ def test_button():
 
 
 if __name__ == "__main__":
-    test_button()
+    # test_button()
+    import time
+    import config
+    b = Button(config.TOP_BUTTON)
+
+    while True:
+        print(b.is_triggered())
+        time.sleep(0.1)

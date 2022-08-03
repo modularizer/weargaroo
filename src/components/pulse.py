@@ -1,9 +1,8 @@
-import time
 import board
 import analogio
 import supervisor
 
-from utility import MeanFilt
+from utility.mean_filt import MeanFilt
 import config
 
 

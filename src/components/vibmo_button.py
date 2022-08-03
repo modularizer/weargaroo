@@ -1,6 +1,4 @@
 import time
-import board
-import digitalio
 
 from components.button import Button
 from components.vibmo import VibMo
@@ -35,11 +33,14 @@ class VibMoButton(object):
         if mode == "button":
             self.deinit()
             self.button.config()
+            self._mode = mode
         elif mode == "vibmo":
             self.deinit()
             self.vibmo.config()
+            self._mode = mode
         else:
             self.deinit()
+            self._mode = None
 
     def __getattr__(self, item):
         if self._mode in ["button", "vibmo"]:

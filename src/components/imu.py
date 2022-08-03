@@ -1,8 +1,7 @@
 import board
 import time
-import math
 import digitalio
-import busio
+from busio import I2C
 from adafruit_lsm6ds.lsm6ds3 import LSM6DS3
 
 
@@ -12,7 +11,7 @@ class IMU(LSM6DS3):
         dpwr.direction = digitalio.Direction.OUTPUT
         dpwr.value = 1
         time.sleep(1)
-        i2c = busio.I2C(board.IMU_SCL, board.IMU_SDA)
+        i2c = I2C(board.IMU_SCL, board.IMU_SDA)
         super().__init__(i2c)
         self.accel_sensitivity = accel_sensitivity
         self.last_accel = (0, 0, -9.82)
@@ -40,7 +39,6 @@ class IMU(LSM6DS3):
                     self.on_gyro_update((x, y, z))
                 finally:
                     self.last_gyro = x, y, z
-
 
 
 def print_imu():

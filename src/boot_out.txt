@@ -1,2 +1,3 @@
 Adafruit CircuitPython 8.0.0-alpha.0-38-gee3ccbc61 on 2022-06-07; Seeed XIAO nRF52840 Sense with nRF52840
 Board ID:Seeed_XIAO_nRF52840_Sense
+boot.py output:
