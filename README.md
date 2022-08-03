@@ -2,21 +2,24 @@
 Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) microcontroller, this watch can be programmed in either Arduino or CircuitPython. For the purposes of this project we will be using CircuitPython.
 
 # Features
- * Color Screen
- * GPS
- * Acceleromenter & Gyroscope (for step counting, fall detection, etc.)
- * Heart Rate Monitor
- * Microphone
- * 3 buttons
- * Vibrational Motor
- * 120mAh LiPo Battery
- * Solar Panels to recharge battery
+ * **Color Screen** (240x240 RGB TFT via SPI)
+ * **GPS** (receives lat, lng, alt, date, time, velocity, position of satellites, etc. via UART)
+ * **Acceleromenter & Gyroscope** (for running cadence, step counting, fall detection, detecting motion/position etc. via I2C)
+ * **Heart Rate Monitor** (receives raw analog data based on intensity of reflected light via AnalogIn)
+ * **Microphone** (via PDM In)
+ * **3 buttons** (via Digital Pins with internal pull-up)
+ * **Vibrational Motor** (via AnalogOut/DigitalOut)
+ * **120mAh LiPo Battery** (connected to builtin battery charging pins)
+ * **Solar Panels** (wired in series and connected to boost converter to 5V in. not currently working)
 
 # Software
   * [KICAD](https://www.kicad.org/) (free PCB Design Software)
   * [Fusion 360](https://www.autodesk.com/products/fusion-360/overview?term=1-YEAR&tab=subscription) (free CAD Software)
   * [Mu](https://codewith.mu/) (free CircuitPython IDE)
+  * [PyCharm](https://www.jetbrains.com/pycharm/download) (free fully fledged Python IDE)
   * [Gimp](https://www.gimp.org/) (free Image Editor)
+  * [Ultimaker Cura](https://ultimaker.com/software/ultimaker-cura) (free gcode 3D print setup software)
+  * [git](https://git-scm.com/downloads) (free version control software)
 
 # Resources
   * [Seeed Studio Official Documentation](https://wiki.seeedstudio.com/XIAO_BLE/)
