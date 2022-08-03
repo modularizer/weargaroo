@@ -1,5 +1,5 @@
 # Weargaroo
-Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) microcontroller, this watch can be programmed in either Arduino or CircuitPython. For the purposes of this project we will be using CircuitPython.
+Make your own smart watch! Built with the [Seeeduino XIAO BLE Sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) microcontroller, this watch can be programmed in either Arduino or CircuitPython. For the purposes of this project we will be using CircuitPython.
 
 # Features
  * **Color Screen** (240x240 RGB TFT via SPI)
@@ -11,8 +11,13 @@ Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sen
  * **Vibrational Motor** (via AnalogOut/DigitalOut)
  * **120mAh LiPo Battery** (connected to builtin battery charging pins)
  * **Solar Panels** (wired in series and connected to boost converter to 5V in. not currently working)
+ * **On-Board File System** (easy to modify code with any text editor, no need to rebuild)
+ * **BLE** (wireless file transfer and communication with phone/laptop, etc.)
+ * **CircuitPython REPL** (easy to test code)
+ * **Arduino or CircuitPython compatible** (easy to get started and lots of open source examples)
+ * **NFC pins** (not currently used)
 
-# Software
+# Software Used
   * [KICAD](https://www.kicad.org/) (free PCB Design Software)
   * [Fusion 360](https://www.autodesk.com/products/fusion-360/overview?term=1-YEAR&tab=subscription) (free CAD Software)
   * [Mu](https://codewith.mu/) (free CircuitPython IDE)
@@ -26,6 +31,7 @@ Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sen
   * [CircuitPython Official Documentation](https://docs.circuitpython.org/en/latest/README.html)
   * [Interpreting NMEA Sentences (for GPS)](http://aprs.gids.nl/nmea/#allgp)
   * [Making Bitmaps](https://learn.adafruit.com/creating-your-first-tilemap-game-with-circuitpython/indexed-bmp-graphics)
+  * [WebBluetooth Editor](https://code.circuitpython.org/)
 
 # Components
 |  Item                       |  Reference |  Quantity  | Price | Shipping | Features  | Price at Scale |                                                              
@@ -48,8 +54,6 @@ Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sen
 
 
 # Supplies
-<hr>
-
 | Item | Price |
 |:-----|:------|
 | [Soldering Iron](https://www.amazon.com/dp/B07S61WT16?ref_=cm_sw_r_cp_ud_dp_9QCDJ8K50YN0SA9NXVT3) | $21 |
@@ -96,8 +100,6 @@ Make your own solar -powered smart watch! Built with the [Seeeduino XIAO BLE Sen
 ### Vibrational Motor / Bottom Button
  * The vibrational motor and the bottom button use the same pin `A0`, so only one can be used at onse.
 
-
-
 # Getting Started
 
 ### Building Hardware
@@ -116,7 +118,6 @@ To boot the Seeed:
 When the Seeed is turned on or rebooted, either `code.py` or `main.py` will be run. 
 The easiest way to test code is to use the Mu Editor in RP2040 Mode.
 You can run files individually with the Run button, or use the REPL to test stuff.
-
 
 ### Interested in a Doing It Yourself?
 If you are interested in this idea and want to do some or all of this project on your own, I'd love to hear about it.
