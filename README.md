@@ -1,5 +1,12 @@
 # Weargaroo
+
+![video.gif](assets/video.gif)
+
+
 Make your own smart watch! Built with the [Seeeduino XIAO BLE Sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) microcontroller, this watch can be programmed in either Arduino or CircuitPython. For the purposes of this project we will be using CircuitPython.
+
+![partial-v1.jpg](assets/partial-v1.png)
+![pcb.png](assets/pcb.png)
 
 # Features
  * **Color Screen** (240x240 RGB TFT via SPI)
@@ -64,10 +71,10 @@ Make your own smart watch! Built with the [Seeeduino XIAO BLE Sense](https://www
 | [Gorilla Glue Gel](https://a.co/d/igLpw8D) | $8 |
 
 # Price
-* Without solar panels the components in the watch cost ~$70 or ~$40 if produced at scale.
+* Without solar panels the components in the watch cost ~\$70 or ~\$40 if produced at scale.
 * When building just one there will be some waste (e.g. you have to buy PCBs in batches of 3)
-* Without solar panels, accelerometer, gyro, ble, or heart rate a gps watch could be made for ~$55, or ~$30 at scale.
-* The simplest smart watch requires only a $6 Seeed, a $13 screen ($4 at scale), and a 3D printed band and could be produced for ~$20 or ~$10 at scale.
+* Without solar panels, accelerometer, gyro, ble, or heart rate a gps watch could be made for ~\$55, or ~\$30 at scale.
+* The simplest smart watch requires only a \$6 Seeed, a \$13 screen (\$4 at scale), and a 3D printed band and could be produced for ~$20 or ~$10 at scale.
 * Solar panels add ~$40 to the price and so far have not been effective (but I'm holding out hope).
 
 # Pinout
